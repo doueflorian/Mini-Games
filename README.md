@@ -1,24 +1,5 @@
-# vue-test
+# Mini Games
 
-## Project setup
-```
-npm install
-```
+This is a Vue.JS Project with which I try to code mini games to work on Vue and Javascript.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+I'll be updating this for a cleaner and "DRYer" code, rethinking the "Gather the seeds" game to work better.
