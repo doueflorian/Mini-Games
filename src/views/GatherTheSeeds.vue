@@ -149,32 +149,68 @@ export default {
 
       let body = document.body;
 
-      document.querySelectorAll('[data-direction').
-        forEach(key =>  key.addEventListener('click', () => {
-          let padKey = key.attributes[1].value;
+      function moveGardener(padKey) {
+        if (padKey === "up") {
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowUp", repeat: true  }));
+        } else if (padKey === "upright") { 
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowUp", repeat: true  }));
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowRight", repeat: true }));
+        } else if (padKey === "right") {
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowRight", repeat: true }));
+        } else if (padKey === "downright") {
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowRight", repeat: true }));
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowDown", repeat: true  }));
+        } else if (padKey === "down") {
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowDown", repeat: true  }));
+        } else if (padKey === "downleft") {
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowDown", repeat: true  }));
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowLeft", repeat: true  }));
+        } else if (padKey === "left") {
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowLeft", repeat: true  }));
+        } else {
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowLeft", repeat: true  }));
+          body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowUp", repeat: true  }));
+        }
+      }
 
-            if (padKey === "up") {
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowUp", repeat: true  }));
-            } else if (padKey === "upright") { 
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowUp", repeat: true  }));
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowRight", repeat: true }));
-            } else if (padKey === "right") {
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowRight", repeat: true }));
-            } else if (padKey === "downright") {
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowRight", repeat: true }));
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowDown", repeat: true  }));
-            } else if (padKey === "down") {
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowDown", repeat: true  }));
-            } else if (padKey === "downleft") {
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowDown", repeat: true  }));
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowLeft", repeat: true  }));
-            } else if (padKey === "left") {
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowLeft", repeat: true  }));
-            } else {
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowLeft", repeat: true  }));
-              body.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: "ArrowUp", repeat: true  }));
-            }
-        }))
+      document.querySelectorAll('[data-direction')
+        .forEach(key => {
+          // Tactile events
+          key.addEventListener('touchstart', () => {
+            let padKey = key.attributes[1].value;
+
+            let isHeld = true;
+
+            setInterval(() => {
+              if(isHeld) {
+                moveGardener(padKey)
+              }
+            }, 60)
+            
+            key.addEventListener('touchend', () => {
+              isHeld = false;
+            })
+
+          })
+          // Mouse events
+          key.addEventListener('mousedown', () => {
+            let padKey = key.attributes[1].value;
+
+            let isHeld = true;
+
+            setInterval(() => {
+              if(isHeld) {
+                moveGardener(padKey)
+              }
+            }, 60)
+            
+            key.addEventListener('mouseup', () => {
+              isHeld = false;
+            })
+
+          })
+        });
+
     
       window.addEventListener('keydown', key => {
         if (key.key == "ArrowUp") {
@@ -289,7 +325,7 @@ export default {
     }
     
     &-infos {
-      @media (max-width: 992px) {
+      @media (max-width: 992px), (max-height: 768px)  {
         display: none;
       }
     }
@@ -300,15 +336,16 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    flex-wrap: wrap;
 
-    @media (max-width: 768px) { 
+    @media (max-width: 768px) and (orientation: portrait) {
       flex-direction: column;
       height: 100vh;
     }
 
-    @media (min-width: 768px) { 
-      flex: 1;
+
+    @media (max-width: 1366px) and (orientation: landscape),
+            (max-height: 768px) and (orientation: landscape) { 
+      height: 100vh;
     }
   }
 }
@@ -324,6 +361,11 @@ export default {
   @media (max-width: 768px) {
     width: 80%;
     height: 50%;
+  }
+
+  @media (max-width: 1366px) and (orientation: landscape) {
+    width: 50%;
+    height: 80%;
   }
  
   svg {

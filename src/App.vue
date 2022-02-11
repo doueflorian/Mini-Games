@@ -42,7 +42,7 @@ html, body {
   color: white;
   padding: 0.5em 0;
 
-  @media (max-width: 768px) {
+  @media (max-width: 768px), (max-height: 768px)  {
     display: none;
   }
 
