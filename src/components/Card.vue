@@ -36,6 +36,7 @@ export default {
         front.classList.remove('flip-right');
         back.classList.add('flip-right');
         back.classList.remove('flip-left');
+        back.classList.remove('unclickable');
         setTimeout(() => {
             back.classList.remove('card-back-down');
         }, 200)
@@ -46,6 +47,7 @@ export default {
         let front = backCard.target.previousElementSibling;
 
         back.classList.add('flip-left');
+        back.classList.add('unclickable');
         back.classList.remove('flip-right');
         front.classList.add('flip-right');
         front.classList.remove('flip-left');
@@ -133,7 +135,6 @@ export default {
         }
     }
 
-
     @keyframes flip-left {
         0% {
             transform: rotateY(0);
@@ -152,4 +153,7 @@ export default {
         }
     }
 
+  .unclickable {
+    pointer-events: none !important;
+  }
 </style>

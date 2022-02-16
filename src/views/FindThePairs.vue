@@ -2,35 +2,25 @@
 
     <div id="pair-game">
 
-        <div id="pair-game_counter">
-            <div id="pair-game_counter-infos">
-                <span>{{ pairsFound }} pair<span v-if="pairsFound > 1">s</span> of {{ pairsOnScreen }} found !</span>
-                <span>{{ time.minutesPassed }} mins and {{ time.secondsPassed }} seconds passed </span>
-            </div>
-            <div id="pair-game_counter-select">
-                <div>
-                    <label for="level">Select your difficulty</label>
-                    <select @change="difficultySelect($event, 'pairsOnScreen', 'maximumCards')" name="level" id="level-select">
-                        <option value="4">Difficulty</option>
-                        <option value="4">Easy (4 Pairs)</option>
-                        <option value="8">Medium (8 Pairs)</option>
-                        <option value="14">Hard (14 pairs)</option>
-                    </select>
-                </div>
-                <div>
-                    Or get it random 
-                    <button @click="difficultySelect($event, 'pairsOnScreen', 'maximumCards')"> Randomize </button>
-                </div>
-            </div>
-        </div>
+        <game-counter 
+          item = 'pair'
+          :itemsFound = 'this.pairsFound'
+          itemsOnScreen = 'pairsOnScreen'
+          :itemsOnScreenValue = 'this.pairsOnScreen'
+          maxItems = 'maximumCards'
+          :minutes = 'this.time.minutesPassed'
+          :seconds = 'this.time.secondsPassed'
+          :difficulties = 'this.difficulties'
+          @difficultySelect = 'this.difficultySelect'
+        />
 
         <div id="pair-game_board">
             <Card v-for='(card, index) in cards' :key="`${cardKey}-${index}`"
                 ref="cardComponent"
-                @click="pickACard"
-                :title='card.title'
-                :iconName='card.icon'
-                :isNumber='card.isNumber'
+                @click = "pickACard"
+                :title = 'card.title'
+                :iconName = 'card.icon'
+                :isNumber = 'card.isNumber'
             />
         </div>
 
@@ -58,6 +48,7 @@ import ReloadGame from '../mixins/ReloadGame'
 import EndGame from '../mixins/EndGame'
 
 // Components
+import GameCounter from '../components/GameCounter.vue'
 import Card from '../components/Card.vue'
 import FinishedGamePrompt from '../components/FinishedGamePrompt.vue'
 
@@ -66,7 +57,7 @@ export default {
     name: 'FindThePairs',
     mixins: [DisplayTime, ShuffleArray, CardsData, RandomNumber, DifficultySelect, ReloadGame, EndGame],
     components: {
-        Card, FinishedGamePrompt
+        Card, FinishedGamePrompt, GameCounter
     },
     data() {
         return {
@@ -78,8 +69,22 @@ export default {
             cardKey: 0,
             isGameFinished: false,
             minutesElapsed: 0,
-            secondsElapsed: 0
-
+            secondsElapsed: 0,
+            CardsPreviouslyDisplayed: null,
+            difficulties: [
+                {
+                title: 'Easy (4 pairs)',
+                value: 4
+                },
+                {
+                title: 'Medium (8 pairs)',
+                value: 8
+                },
+                {
+                title: 'Hard (14 pairs)',
+                value: 14
+                }
+              ]
         }
     },
     watch: {
@@ -92,12 +97,12 @@ export default {
         },
         pairsFound: function() {
             if(this.pairsOnScreen === this.pairsFound) {
-              this.endGame('pairsOnScreen');
+              this.endGame('pairsOnScreen', 'CardsPreviouslyDisplayed', this.pairsOnScreen);
             }
         },
         isGameFinished: function() {
             if(this.isGameFinished === false) {
-                this.pairsOnScreen = 4;
+                this.pairsOnScreen = this.CardsPreviouslyDisplayed;
             }
         }
     },
@@ -119,16 +124,22 @@ export default {
 
             this.cards = this.shuffleArray(this.cards);
         },
+        retrieveAllCards() {
+          return document.querySelectorAll('.card-space');
+        },
         hideAllCards() {
-            document.querySelectorAll('.card-space').forEach( e => {
+            this.retrieveAllCards().forEach( e => {
                 this.$refs.cardComponent[0].flipCard(e.firstChild);
             })
+        },
+        blockAllCards() {
+            this.retrieveAllCards().forEach( e => e.addEventListener('click', click => click.stopPropagation(), true))
         },
         pickACard(card) {
 
             let isCardShown = card.target.classList.contains('card');
             let cardname = card.target.attributes['data-card'].value ;
-
+            
             if(this.chosenCard === null) {
 
                 this.chosenCard = cardname;
@@ -153,13 +164,25 @@ export default {
                     return this.chosenCard = null;
 
                 } else {
+
+                  this.retrieveAllCards().forEach(cards => {
+                    for (let child of cards.children){
+                      child.classList.add('unclickable')
+                    }
+                  })
                     
-                    setTimeout(() => {
-                        this.hideAllCards();
-                        
+                  setTimeout(() => {
+                      this.hideAllCards();  
+                    
+                      this.retrieveAllCards().forEach(cards => {
+                        for (let child of cards.children){
+                        child.classList.remove('unclickable')
+                        }
+                      })   
                     }, 800)
 
-                    return this.chosenCard = null;
+                  return this.chosenCard = null;
+
                 }
             }
         }
@@ -173,48 +196,11 @@ export default {
 
 <style lang="scss" scoped>
 #pair-game {
-    flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 100%;
     width: 100%;
     background-image: url('../assets/images/pexels-fwstudio-163999.jpg');
-
-    &_counter {
-        width: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        color: white;
-        display: flex;
-        justify-content: center;
-        margin-bottom: 0.5em;
-
-        &-infos, &-select {
-            display: flex;
-            flex-direction: column;
-            padding: 1em;
-            line-height: 2em;
-
-            div {
-                display: flex;
-                justify-content: space-between;
-
-                select, button {
-                    text-align: center;
-                    width: 140px;
-                    margin-left: 1em;
-                    background: rgba(255, 255, 255, 0.5);
-                    border: 1px solid black;
-                    border-radius: 0.5em;
-                }
-            }
-        }
-
-      &-infos {
-        @media (max-width: 992px) {
-          display: none;
-        }
-      }
-
-    }
 
     &_board {
         display: flex;

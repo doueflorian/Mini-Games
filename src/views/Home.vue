@@ -129,14 +129,15 @@ export default {
 
 <style scoped lang="scss">
   #homepage {
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    flex: 1;
     background: no-repeat center url('../assets/images/pexels-huỳnh-đạt-2251206.jpg');
     background-size: cover;
   }
 
   #nav {
+    overflow-y: scroll;
     margin: auto;
     display: flex;
     justify-content: space-around;
@@ -256,7 +257,6 @@ export default {
       box-shadow: inset 0px 0px 10px black;
 
       &-broken {
-          // transform: rotate(2deg);
           background-color: black;
           animation: blinkingTv 200ms ease-in-out  1 forwards;
       }

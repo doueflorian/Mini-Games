@@ -1,28 +1,17 @@
 <template>
   <div id="seed-game">
-    <div id="seed-game_counter">
-      <div id="seed-game_counter-infos">
-        <span>{{ seeds }} seeds planted</span>
-        <span>{{ foundSeeds }} seeds gathered and {{ seeds - foundSeeds }} remaining </span>
-        <span>{{ time.minutesPassed }} mins and {{ time.secondsPassed }} seconds passed </span>
-      </div>
-      <div id="seed-game_counter-select">
-        <div>
-          <label for="level">Select your </label>
-          <select @change="difficultySelect($event, 'seeds', 'maxSeeds')" name="level" id="level-select">
-            <option value="5"> difficulty </option>
-            <option value="5">Easy (5 Seeds)</option>
-            <option value="15">Medium (15 Seeds)</option>
-            <option value="30">Hard (30 Seeds)</option>
-            <option value="50">Too Much (50 Seeds)</option>
-          </select>
-        </div>
-        <div>
-          <span>Or</span>
-          <button @click="difficultySelect($event, 'seeds', 'maxSeeds')"> Randomize </button>
-        </div>
-      </div>
-    </div>
+
+    <game-counter 
+      :itemsFound = 'this.foundSeeds'
+      itemsOnScreen = 'seeds'
+      item = 'seed'
+      :itemsOnScreenValue = 'this.seeds'
+      maxItems = 'maxSeeds'
+      :minutes = 'this.time.minutesPassed'
+      :seconds = 'this.time.secondsPassed'
+      :difficulties = 'this.difficulties'
+      @difficultySelect = 'this.difficultySelect'
+    />
 
     <div id="seed-game_playground">
       <div id="garden">
@@ -71,6 +60,7 @@ import ReloadGame from '../mixins/ReloadGame'
 import EndGame from '../mixins/EndGame'
 
 // Components
+import GameCounter from '../components/GameCounter.vue'
 import FinishedGamePrompt from '../components/FinishedGamePrompt.vue'
 
 
@@ -79,19 +69,38 @@ export default {
   name: "GatherTheSeeds",
   mixins: [DisplayTime, RandomNumber, DifficultySelect, ReloadGame, EndGame],
       components: {
-        FinishedGamePrompt
+        FinishedGamePrompt, GameCounter
     },
     data(){
       return {
         seeds: 5,
         maxSeeds: 50,
         foundSeeds: 0,
-        handsPos: "",
+        handsPos: {},
         seedsPos: [],
         seedKey: 0,
         isGameFinished: false,
         minutesElapsed: 0,
-        secondsElapsed: 0
+        secondsElapsed: 0,
+        CardsPreviouslyDisplayed: null,
+        difficulties: [
+            {
+            title: 'Easy (5 seeds)',
+            value: 5
+            },
+            {
+            title: 'Medium (15 seeds)',
+            value: 15
+            },
+            {
+            title: 'Hard (30 seeds)',
+            value: 30
+            },
+            {
+            title: 'Too Much (50 seeds)',
+            value: 50
+            }
+          ]
       }
   },
   watch: {
@@ -99,7 +108,7 @@ export default {
       this.seedsPos = [];
       this.seedKey += 1;
       this.foundSeeds = 0;
-      this.handsPos = "";
+      this.handsPos = {};
       this.time = {minutesPassed: 0, secondsPassed: 0};
 
       setTimeout(() => {
@@ -110,12 +119,12 @@ export default {
     },
     foundSeeds: function() {
         if(this.foundSeeds === this.seeds) {
-            this.endGame('seeds');
+            this.endGame('seeds', 'CardsPreviouslyDisplayed', this.seeds);
         }
     },
     isGameFinished: function() {
         if(this.isGameFinished === false) {
-            this.seeds = 5;
+            this.seeds = this.CardsPreviouslyDisplayed;
         }
     }
   },
@@ -129,17 +138,18 @@ export default {
         }
     },
     getHandsPosition() {
-      let handsY = document.getElementById('hands').style.top;
-      let handsX = document.getElementById('hands').style.left;
-      return this.handsPos = handsY + "." + handsX;
+      let hands = document.getElementById('hands');
+      let handsRect = hands.getBoundingClientRect();
+
+      return this.handsPos = {y: Math.ceil(handsRect.y + (handsRect.height / 2)), x: Math.ceil(handsRect.x + (handsRect.width / 2))}
     },
     getSeedsPositions() {
 
         for(let j = 0; j < this.seeds; j++) {
-
-          let seedY = document.querySelector(`[data-seed="${j}"]`).style.top;
-          let seedX = document.querySelector(`[data-seed="${j}"]`).style.left;
-          this.seedsPos.push(seedY + "." + seedX);  
+          let seed = document.querySelector(`[data-seed="${j}"]`);
+          let seedRect = seed.getBoundingClientRect();
+          
+          this.seedsPos.push({y: Math.ceil(seedRect.y), x: Math.ceil(seedRect.x), h: Math.ceil(seedRect.y + seedRect.height), w: Math.ceil(seedRect.x + seedRect.width) });  
         }
     },
     harvest() {
@@ -187,13 +197,13 @@ export default {
               }
             }, 60)
             
-            key.addEventListener('touchend', () => {
+            document.addEventListener('touchend', () => {
               isHeld = false;
             })
 
           })
           // Mouse events
-          key.addEventListener('mousedown', () => {
+          key.addEventListener('mousedown', (event) => {
             let padKey = key.attributes[1].value;
 
             let isHeld = true;
@@ -204,8 +214,9 @@ export default {
               }
             }, 60)
             
-            key.addEventListener('mouseup', () => {
+            document.addEventListener('mouseup', () => {
               isHeld = false;
+              event.stopPropagation();
             })
 
           })
@@ -213,6 +224,10 @@ export default {
 
     
       window.addEventListener('keydown', key => {
+        if(key.key == "ArrowUp" || key.key == "ArrowRight" || key.key == "ArrowDown" || key.key == "ArrowLeft"){
+          key.preventDefault();
+        }
+
         if (key.key == "ArrowUp") {
           if(handsTop < 0){
             handsTop += 1;
@@ -258,12 +273,15 @@ export default {
     },
     gatherTheSeeds() {
       let hands = this.getHandsPosition();
-      if (this.seedsPos.includes(hands)) {
-        let seedIndex = this.seedsPos.findIndex(e => e === hands);
-        this.foundSeeds++;
-        document.querySelector(`[data-seed="${seedIndex}"]`).style.display = "none";
 
-        this.seedsPos.splice(seedIndex, 1, "found");
+      for(let [index, position] of this.seedsPos.entries()) {
+
+        if (hands.y >= position.y && hands.y <= position.h && hands.x >= position.x && hands.x <= position.w) {
+          this.foundSeeds++;
+          document.querySelector(`[data-seed="${index}"]`).style.display = "none";
+
+          this.seedsPos.splice(index, 1, "found");
+        }
       }
     }
   },
@@ -272,7 +290,7 @@ export default {
     this.getHandsPosition();
     this.getSeedsPositions();
     this.harvest();
-    window.addEventListener('keydown', () => this.gatherTheSeeds())
+    window.addEventListener('keydown', () => this.gatherTheSeeds());
   }
 
 
@@ -288,7 +306,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  flex: 1;
+  height: 100%;
 
   & * {
     user-select: none;
@@ -296,6 +314,7 @@ export default {
 
   &_counter {
     width: 100%;
+    height: 100px;
     background: rgba(1, 20, 0, 0.8);
     color: white;
     display: flex;
@@ -336,6 +355,7 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    height: 100%;
 
     @media (max-width: 768px) and (orientation: portrait) {
       flex-direction: column;
@@ -343,8 +363,7 @@ export default {
     }
 
 
-    @media (max-width: 1366px) and (orientation: landscape),
-            (max-height: 768px) and (orientation: landscape) { 
+    @media (max-width: 1023px) { 
       height: 100vh;
     }
   }
@@ -363,19 +382,27 @@ export default {
     height: 50%;
   }
 
-  @media (max-width: 1366px) and (orientation: landscape) {
+  @media (max-height: 768px) {
+    width: 60%;
+    height: 50%;
+  }
+
+  @media (max-width: 1023px) and (orientation: landscape) {
     width: 50%;
     height: 80%;
   }
  
   svg {
-    font-size: 1.8em;
     color: green;
+    width: 30px;
+    height: 30px;
   }
 
   #hands{
     position: absolute;
     color: pink;
+    width: 25px;
+    height: 25px;
   }
 }
 
@@ -397,9 +424,9 @@ export default {
   grid-column-gap: 0px;
   grid-row-gap: 0px; 
 
-  @media (max-width: 300px) {
-    width: 250px;
-    height: 250px;
+  @media (max-width: 300px), (max-height: 500px) {
+    width: 200px;
+    height: 200px;
   }
 
 
