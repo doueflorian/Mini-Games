@@ -7,6 +7,7 @@
 </template>
 
 <style lang="scss">
+
 html, body {
   margin: 0;
   padding: 0;
@@ -16,15 +17,12 @@ html, body {
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
   height: 100%;
   position: relative;
-  // display: flex;
-  // flex-direction: column;
 }
 
 .home {
@@ -34,7 +32,6 @@ html, body {
   color: white;
   text-decoration: none;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 
@@ -49,12 +46,12 @@ html, body {
   }
 
   @media (max-width: 1023px) {
+    font-size: 1.2em;
+
     &-icon {
       display: none;
     }
-    font-size: 1.2em;
   }
-
 }
 
 .images-credit {
@@ -71,4 +68,5 @@ html, body {
     color: white;
   }
 }
+
 </style>

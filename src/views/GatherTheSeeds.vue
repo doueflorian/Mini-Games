@@ -300,96 +300,49 @@ export default {
 
 <style lang="scss" scoped>
 #seed-game {
+  height: 100%;
   background: no-repeat center  url('../assets/images/pexels-pixabay-289613.jpg');
   background-size: cover;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  height: 100%;
 
   & * {
     user-select: none;
   }
 
-  &_counter {
-    width: 100%;
-    height: 100px;
-    background: rgba(1, 20, 0, 0.8);
-    color: white;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.5em;
-
-    &-infos, &-select {
-      display: flex;
-      flex-direction: column;
-      padding: 1em;
-      line-height: 2em;
-
-      div {
-        display: flex;
-        justify-content: space-between;
-
-        select, button {
-          text-align: center;
-          width: 140px;
-          margin-left: 1em;
-          background: rgba(255, 255, 255, 0.5);
-          border: 1px solid black;
-          border-radius: 0.5em;
-        }
-      }
-
-    }
-    
-    &-infos {
-      @media (max-width: 992px), (max-height: 768px)  {
-        display: none;
-      }
-    }
-  }
-
   &_playground {
     width: 100%;
+    flex: 1;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: 100%;
 
     @media (max-width: 768px) and (orientation: portrait) {
       flex-direction: column;
-      height: 100vh;
-    }
-
-
-    @media (max-width: 1023px) { 
       height: 100vh;
     }
   }
 }
 
 #garden {
-  width: 500px;
-  height: 500px;
+  width: 800px;
+  height: 550px;
   border: 1px solid black;
   position: relative;
   background: rgba(1, 20, 0, 0.8);
   border-radius: 0.5em;
 
   @media (max-width: 768px) {
-    width: 80%;
-    height: 50%;
+    width: calc(100vw - 50px);
+    height: calc(100vh - 400px);
   }
 
-  @media (max-height: 768px) {
-    width: 60%;
-    height: 50%;
-  }
-
-  @media (max-width: 1023px) and (orientation: landscape) {
-    width: 50%;
-    height: 80%;
+  @media (max-width: 1023px) and (orientation: landscape),
+          (max-height: 850px) and (orientation: landscape){
+    width: calc(100vw - 350px);
+    height: calc(100vh - 200px);
   }
  
   svg {
