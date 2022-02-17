@@ -1,4 +1,5 @@
 <template>
+<div id="donkey-game">
 
     <div id="hide-area">
 
@@ -12,6 +13,7 @@
               <circle id="search" cx="50%" cy="50%" r="80" fill="black"/>
             </clipPath>
         </defs>
+        
         <g clip-path="url(#cursorMask)">
           <rect width="100%" height="100%" fill="lightgrey"/>
           <image id="donkey" href="@/assets/images/donkey.png" x="0" y="0" width="150" height="150" alt="" />
@@ -21,6 +23,10 @@
       </svg>
 
     </div>
+
+
+</div>
+
 
 </template>
 
@@ -70,6 +76,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#donkey-game {
+  height: 100%;
+}
+
 #donkey {
   cursor: pointer;
 }
@@ -81,7 +91,7 @@ export default {
   border: 1px solid black;
   border-radius: 5em;
   position: relative;
-  flex: 1;
+  height: 100%;
   width: 90%;
 }
 
@@ -92,7 +102,6 @@ svg {
   top: 0;
   left: 0;
   border-radius: 5em;
-
 }
 
 </style>

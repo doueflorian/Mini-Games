@@ -9,11 +9,11 @@ export default {
                 {
                     title: 'Gather The Seeds',
                     path: '/GatherTheSeeds'
-                },
-                {
-                    title: 'Find Something',
-                    path: '/FindTheDonkey'
                 }
+                // {
+                //     title: 'Find Something',
+                //     path: '/FindTheDonkey'
+                // }
             ]
         }
     }

@@ -14,7 +14,7 @@
 
     <div id="tvs">
       
-      <span class="tv-drag">You can drag the TV anywhere if that pleases you. (not working on tactile yet)</span>
+      <span class="tv-drag">You can drag and move a TV !</span>
       <div class="tv" style="left: 10%;">
         <span class="tv-antenna"></span><span class="tv-antenna"></span>
         <span class="tv-shell">
@@ -25,7 +25,7 @@
           </div>
           </span>
       </div>
-      <div class="tv" style="left: 80%;">
+      <div class="tv tv-2" style="left: 80%;">
         <span class="tv-antenna"></span><span class="tv-antenna"></span>
         <span class="tv-shell">
           <span class="tv-screen"></span>
@@ -35,7 +35,7 @@
           </div>
           </span>
       </div>
-      <div class="tv" style="left: 50%;">
+      <div class="tv tv-3" style="left: 50%;">
         <span class="tv-antenna"></span><span class="tv-antenna"></span>
         <span class="tv-shell">
           <span class="tv-screen"></span>
@@ -43,7 +43,7 @@
             <span class="tv-button"></span>
             <span class="tv-button"></span>
           </div>
-          </span>
+        </span>
       </div>
       
 
@@ -68,6 +68,9 @@ export default {
 
       document.querySelectorAll(".tv").forEach(tv => {
 
+        function pute() { return console.log('pute') }
+        tv.ontouchstart = pute();
+
         let originalTvTopPosition = appHeight - tv.clientHeight;
 
         document.addEventListener('resize', () => {
@@ -81,45 +84,43 @@ export default {
 
         this.dragElement(tv, appHeight, appWidth, tv.clientHeight, tv.clientWidth);
 
-        tv.addEventListener('click', () => { 
+                 function makeTvFall() {
+            let actualTopPosition = parseInt(tv.style.top.substring(0, tv.style.top.length -2));
+            let distanceFromGround = parseInt(originalTvTopPosition - actualTopPosition);
 
-          let actualTopPosition = parseInt(tv.style.top.substring(0, tv.style.top.length -2));
-          let distanceFromGround = parseInt(originalTvTopPosition - actualTopPosition);
-
-          const sleep = (time) => {
-            return new Promise(resolve => setTimeout(resolve, time))
-          }
-
-          const comeDown = async () => {
-            for(let i = 0; i < distanceFromGround; i++ ) {
-              await sleep(0);
-              tv.style.top = (actualTopPosition + i) + "px";
-             
+            const sleep = (time) => {
+              return new Promise(resolve => setTimeout(resolve, time))
             }
-           
-            tv.children[0].classList.add('tv-antenna-broken');
-            tv.children[1].classList.add('tv-antenna-broken');
-            tv.children[2].children[1].classList.add('tv-panel-broken');
-            tv.children[2].children[0].classList.add('tv-screen-broken');
 
-            let tvDragtext = document.querySelector('.tv-drag');
+            const comeDown = async () => {
+              for(let i = 0; i < distanceFromGround; i++ ) {
+                await sleep(0);
+                tv.style.top = (actualTopPosition + i) + "px";
+              
+              }
+            
+              tv.children[0].classList.add('tv-antenna-broken');
+              tv.children[1].classList.add('tv-antenna-broken');
+              tv.children[2].children[1].classList.add('tv-panel-broken');
+              tv.children[2].children[0].classList.add('tv-screen-broken');
 
-            switch(tvDragtext.innerText) {
-              case "You can drag the TV anywhere if that pleases you. (not working on tactile yet)":
-                tvDragtext.innerText = "There, you broke one, be gentle with it.";
-                break;
-              case "There, you broke one, be gentle with it.":
-                tvDragtext.innerText = "Are you going to break them all ?";
-                break;
-              case "Are you going to break them all ?":
-                tvDragtext.innerText = "Wow thanks, really 🙄"
-                break;
-            }
+              let tvDragtext = document.querySelector('.tv-drag');
+
+              switch(tvDragtext.innerText) {
+                case "You can drag and move a TV !":
+                  tvDragtext.innerText = "There, you broke it, be gentle with it.";
+                  break;
+                case "There, you broke it, be gentle with it.":
+                  tvDragtext.innerText = "Wow thanks, really 🙄"
+                  break;
+              }
+            } 
+
+            comeDown();
           } 
 
-          comeDown();
-          
-        });
+        tv.addEventListener('click', () => { makeTvFall() });
+        tv.addEventListener('touchend', () => { makeTvFall() });
 
       })
     }
@@ -171,16 +172,6 @@ export default {
     &:hover {
       border: 1px solid white;
     }
-
-    &:nth-child(3) {
-      pointer-events: none;
-      opacity: 0.5;
-      &::after {
-        content: "En construction";
-        position: absolute;
-        bottom: 0;
-      }
-    }
   }
 
   #tvs {
@@ -188,11 +179,7 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: center;
-
-    @media (max-width: 1024px) {
-      display: none;
-      
-    }
+    z-index: 100;
   }
 
   .tv-drag {
@@ -207,6 +194,19 @@ export default {
     position: absolute;
     z-index: 10;
     overflow: clip;
+    padding: 0.5em;
+
+    &-2 {
+      @media (max-width: 767px) {
+        display: none;
+      }  
+    }
+
+    &-3 {
+      @media (max-width: 1023px) {
+        display: none;
+      }  
+    }
 
     & * {
       pointer-events: none;
@@ -219,6 +219,7 @@ export default {
       width: 3px;
       height: 20px;
       background-color: black;
+      box-shadow: 0px 0px 5px white;
 
       &:nth-child(1) {
         transform: translate(15px, 10px) rotate(-25deg);
@@ -245,6 +246,9 @@ export default {
       display: flex;
       justify-content: center;
       align-items: center;
+      box-shadow: 0px 0px 5px white;
+      position: relative;
+      z-index: 50;
     }
 
     &-screen {

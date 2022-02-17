@@ -292,8 +292,6 @@ export default {
     this.harvest();
     window.addEventListener('keydown', () => this.gatherTheSeeds());
   }
-
-
 }
 
 </script>
