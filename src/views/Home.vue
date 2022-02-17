@@ -10,45 +10,43 @@
 
         <router-view/>
 
-    </div>
-
-    <div id="tvs">
+    </div>   
       
-      <span class="tv-drag">You can drag and move a TV !</span>
-      <div class="tv" style="left: 10%;">
-        <span class="tv-antenna"></span><span class="tv-antenna"></span>
-        <span class="tv-shell">
-          <span class="tv-screen"></span>
-          <div class="tv-panel">
-            <span class="tv-button"></span>
-            <span class="tv-button"></span>
-          </div>
-          </span>
-      </div>
-      <div class="tv tv-2" style="left: 80%;">
-        <span class="tv-antenna"></span><span class="tv-antenna"></span>
-        <span class="tv-shell">
-          <span class="tv-screen"></span>
-          <div class="tv-panel">
-            <span class="tv-button"></span>
-            <span class="tv-button"></span>
-          </div>
-          </span>
-      </div>
-      <div class="tv tv-3" style="left: 50%;">
-        <span class="tv-antenna"></span><span class="tv-antenna"></span>
-        <span class="tv-shell">
-          <span class="tv-screen"></span>
-          <div class="tv-panel">
-            <span class="tv-button"></span>
-            <span class="tv-button"></span>
-          </div>
+    <div class="tv" style="left: 10%;">
+      <span class="tv-antenna"></span><span class="tv-antenna"></span>
+      <span class="tv-shell">
+        <span class="tv-screen"></span>
+        <div class="tv-panel">
+          <span class="tv-button"></span>
+          <span class="tv-button"></span>
+        </div>
         </span>
-      </div>
-      
-
-
     </div>
+
+    <div class="tv tv-2" style="left: 80%;">
+      <span class="tv-antenna"></span><span class="tv-antenna"></span>
+      <span class="tv-shell">
+        <span class="tv-screen"></span>
+        <div class="tv-panel">
+          <span class="tv-button"></span>
+          <span class="tv-button"></span>
+        </div>
+        </span>
+    </div>
+
+    <div class="tv tv-3" style="left: 50%;">
+      <span class="tv-antenna"></span><span class="tv-antenna"></span>
+      <span class="tv-shell">
+        <span class="tv-screen"></span>
+        <div class="tv-panel">
+          <span class="tv-button"></span>
+          <span class="tv-button"></span>
+        </div>
+      </span>
+    </div>
+      
+    
+    <span class="tv-drag">You can drag and move a TV !</span>
     <span class="images-credit">Background by <a href="https://www.pexels.com/fr-fr/@donghuangmingde">Huỳnh Đạt</a></span>
 
   </div>
@@ -61,69 +59,67 @@ import DragElement from '../mixins/DragElement'
 export default {
   name: 'Home',
   mixins: [GamesData, DragElement],
-    mounted() {
+  mounted() {
 
-      let appHeight = document.querySelector('#app').clientHeight;
-      let appWidth = document.querySelector('#app').clientWidth;
+    let appHeight = document.querySelector('#app').clientHeight;
+    let appWidth = document.querySelector('#app').clientWidth;
 
-      document.querySelectorAll(".tv").forEach(tv => {
+    document.querySelectorAll(".tv").forEach(tv => {
 
-        function pute() { return console.log('pute') }
-        tv.ontouchstart = pute();
+      let originalTvTopPosition = appHeight - tv.clientHeight;
 
-        let originalTvTopPosition = appHeight - tv.clientHeight;
+      this.dragElement(tv, appHeight, appWidth, tv.clientHeight, tv.clientWidth);
 
-        document.addEventListener('resize', () => {
-          appHeight = document.querySelector('#app').clientHeight;
-          appWidth = document.querySelector('#app').clientWidth;
-
-          tv.style.top = (originalTvTopPosition - 50) + "px";
-  
-          this.dragElement(tv, appHeight, appWidth, tv.clientHeight, tv.clientWidth);
-        });
-
+      window.addEventListener('resize', () => {
+        appHeight = document.querySelector('#app').clientHeight;
+        appWidth = document.querySelector('#app').clientWidth;
         this.dragElement(tv, appHeight, appWidth, tv.clientHeight, tv.clientWidth);
+      })
 
-                 function makeTvFall() {
-            let actualTopPosition = parseInt(tv.style.top.substring(0, tv.style.top.length -2));
-            let distanceFromGround = parseInt(originalTvTopPosition - actualTopPosition);
+        function makeTvFall() {
+          let actualTopPosition = parseInt(tv.style.top.substring(0, tv.style.top.length -2));
+          let distanceFromGround = parseInt(originalTvTopPosition - actualTopPosition);
 
-            const sleep = (time) => {
-              return new Promise(resolve => setTimeout(resolve, time))
+          const sleep = (time) => {
+            return new Promise(resolve => setTimeout(resolve, time))
+          }
+
+          const comeDown = async () => {
+            for(let i = 0; i < distanceFromGround; i++ ) {
+              await sleep(0);
+              tv.style.top = (actualTopPosition + i) + "px";
             }
-
-            const comeDown = async () => {
-              for(let i = 0; i < distanceFromGround; i++ ) {
-                await sleep(0);
-                tv.style.top = (actualTopPosition + i) + "px";
-              
-              }
             
-              tv.children[0].classList.add('tv-antenna-broken');
-              tv.children[1].classList.add('tv-antenna-broken');
-              tv.children[2].children[1].classList.add('tv-panel-broken');
-              tv.children[2].children[0].classList.add('tv-screen-broken');
+            tv.style.top = null;
+            tv.style.bottom = 0;
+            let leftPositionToPercentage = tv.style.left.substring(0, tv.style.left.length -2) / appWidth * 100;
+            tv.style.left = Math.ceil(leftPositionToPercentage) + "%";
 
-              let tvDragtext = document.querySelector('.tv-drag');
+            tv.children[0].classList.add('tv-antenna-broken');
+            tv.children[1].classList.add('tv-antenna-broken');
+            tv.children[2].children[1].classList.add('tv-panel-broken');
+            tv.children[2].children[0].classList.add('tv-screen-broken');
 
-              switch(tvDragtext.innerText) {
-                case "You can drag and move a TV !":
-                  tvDragtext.innerText = "There, you broke it, be gentle with it.";
-                  break;
-                case "There, you broke it, be gentle with it.":
-                  tvDragtext.innerText = "Wow thanks, really 🙄"
-                  break;
-              }
-            } 
+            let tvDragtext = document.querySelector('.tv-drag');
 
-            comeDown();
+            switch(tvDragtext.innerText) {
+              case "You can drag and move a TV !":
+                tvDragtext.innerText = "There, you broke it, be gentle with it.";
+                break;
+              case "There, you broke it, be gentle with it.":
+                tvDragtext.innerText = "Wow thanks, really 🙄"
+                break;
+            }
           } 
 
-        tv.addEventListener('click', () => { makeTvFall() });
-        tv.addEventListener('touchend', () => { makeTvFall() });
+          comeDown();
+        } 
 
-      })
-    }
+      tv.addEventListener('click', () => { makeTvFall() });
+      tv.addEventListener('touchend', () => { makeTvFall() });
+
+    })
+  }
   
 }
 </script>
@@ -174,16 +170,8 @@ export default {
     }
   }
 
-  #tvs {
-    height: 150px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 100;
-  }
-
   .tv-drag {
-    align-self: flex-end;
+    align-self: center;
     z-index: 50;
     background: rgba(white, 0.8);
     border-radius: 0.2em;
@@ -192,18 +180,18 @@ export default {
   .tv {
     cursor: move;
     position: absolute;
+    bottom: 0;
     z-index: 10;
-    overflow: clip;
-    padding: 0.5em;
+    margin-bottom: 0.2em;
 
     &-2 {
-      @media (max-width: 767px) {
+      @media (max-width: 767px), (max-height: 500px) {
         display: none;
       }  
     }
 
     &-3 {
-      @media (max-width: 1023px) {
+      @media (max-width: 1023px), (max-height: 500px) {
         display: none;
       }  
     }
@@ -279,8 +267,12 @@ export default {
       &-broken {
         span {
 
+          &:nth-child(1) {
+            transform: rotate(30deg) ;
+          }
+
           &:nth-child(2) {
-            transform: translate(0px, 100px) rotate(180deg) ;
+            transform: translate(0px, 30px) rotate(180deg) ;
           }
         }
       }
@@ -309,6 +301,5 @@ export default {
     80% {background-color: white;}
     90% {background-color: white;}
     100% {background-color: rgba(white, 0.15);}
-
   }
 </style>
